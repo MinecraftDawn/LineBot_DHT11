@@ -12,6 +12,7 @@ import os
         
 app = Flask(__name__)
 
+#濕度及溫度全域變數
 humidity=50
 temperature=25
 
@@ -24,7 +25,9 @@ handler = WebhookHandler('Channel Secret')
 # 監聽目標為 /download 的 Post Request
 @app.route("/download", methods=['POST','GET'])
 def download():
+    #設定檔案位置
     urlPath = app.root_path + "/test.png"
+    #如果檔案存在才繼續
     if os.path.isfile(urlPath):
         print("檔案存在")
         return send_file(urlPath,as_attachment=True)    
@@ -32,10 +35,12 @@ def download():
 # 監聽目標為 / 的 Post Get Request
 @app.route("/<hum>/<temp>", methods=['POST','GET'])
 def getDHT(hum,temp):
+    #修改hum及temp
     print(hum)
     print(temp)
     humidity = hum
     temperature = temp
+    #呼叫產生圖片的函式
     createImg(humidity,temperature)
     return "Test"
 
@@ -64,6 +69,7 @@ def handle_message(event):
     # 回復與使用者傳送相同的訊息
     line_bot_api.reply_message(event.reply_token, message) 
 
+    #發送圖片給Line使用者
     image_message = ImageSendMessage(
         original_content_url='https://00ae8503.ngrok.io/download',
         preview_image_url='https://00ae8503.ngrok.io/download'
@@ -72,16 +78,16 @@ def handle_message(event):
 
 from PIL import Image, ImageDraw, ImageFont
 def createImg(humidity,temperature):
-    
+    #需要先有一張"晴天.jpg"存放於和本檔案相同的路徑
     imageA = Image.open("晴天.jpg")
-    
+    #建立Draw物件，準備修改圖片
     Drawimg = ImageDraw.Draw(imageA)
-    
+    #建立font物件
     font = ImageFont.truetype("arial.ttf", 50)
-    
+    #將文字畫在圖片上
     Drawimg.text((0, 0), str("humidity: " + str(humidity)), fill=(0,0,0), font=font)
     Drawimg.text((0, 70), str("temperature: " + str(temperature)), fill=(0,0,0), font=font)
-    
+    #儲存圖片
     imageA.save('test.png')
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 80))

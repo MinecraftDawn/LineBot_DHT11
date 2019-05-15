@@ -2,17 +2,21 @@
 #include <ESP8266WiFi.h>
 #include <DHTesp.h>
 DHTesp dht;
+//砞﹚办跑计放の楞
 float humidity;
 float temperature;
 
 void setup() {
-  Serial.begin(115200);                                  //Serial connection
+  //砞﹚纉瞯(Baud)
+  Serial.begin(115200);
 
-  dht.setup(2, DHTesp::DHT11); 
+  //砞﹚dht
+  dht.setup(2, DHTesp::DHT11);
+  //硈絬wifi斗恶SSIDのPassword
   WiFi.begin("<SSID>", "<Password>");   //WiFi connection
- 
+  //单wifi硈絬Θ
   while (WiFi.status() != WL_CONNECTED) {  //Wait for the WiFI connection completion
- 
+    //–筳0.5硈絬Ω
     delay(500);
     Serial.println("Waiting for connection");
  
@@ -21,21 +25,27 @@ void setup() {
 }
 
 void getDHT(){
+  //单DHT11玱丁
   delay(dht.getMinimumSamplingPeriod());
  // delay(dht.getMinimumSamplingPeriod());
-
+  //眔楞
   humidity = dht.getHumidity();
+  //眔放
   temperature = dht.getTemperature();
 }
  
 void loop() {
+ //眔放の楞
  getDHT();
  
+ //狦ヘ玡硈絬篈琌タ盽
  if(WiFi.status()== WL_CONNECTED){   //Check WiFi connection status
  
+   //ミHTTPClineンノㄓ硈絬Server
    HTTPClient http;    //Declare object of class HTTPClient
 
   //?args1=" + String(humidity) + "&args2=" + String(temperature)
+   //硈絬Server
    http.begin("http://192.168.43.160/" + String(humidity) + "/" + String(temperature));      //Specify request destination
    http.addHeader("Content-Type", "text/plain");  //Specify content-type header
    http.setUserAgent("a=10");
@@ -53,6 +63,7 @@ void loop() {
     Serial.println("Error in WiFi connection");   
  
  }
-  delay(30000);  //Send a request every 5 seconds
+  //–30硈絬Ω
+  delay(30000);  //Send a request every 30 seconds
  
 }
